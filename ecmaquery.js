@@ -2,21 +2,33 @@
 
 (function(window, document) {
     var log = console.log.bind(console);
-
+    var tempBlock = document.createElement('div');
+    var dataMap = new Map();
     var arr = Array.prototype;
+    var proto, ecmaQuery;
 
-    if (!Object.assign) {
-        Object.assign = function(target, source) {
-            return Object.keys(source).reduce(function(target, key) {
-                target[key] = source[key];
-                return target;
-            }, target);
-        };
+    function map(elems, callback, thisArg) {
+        if (elems.length) {
+            return arr.map.call(elems, callback, thisArg);
+        } else {
+            arr.forEach.call(Object.keys(elems), function(key) {
+                elems[key] = callback.apply(thisArg, arguments);
+            }, thisArg);
+            return elems;
+        }
     }
 
-    var tempBlock = document.createElement('div');
+    function merge() {
+        return arr.reduce.call(arguments, function(a, b) {
+            return Object.assign(a, b);
+        });
+    }
 
-    var proto = {
+    function clone(obj) {
+        return merge({}, obj);
+    }
+
+    proto = {
         init: function(selector, context) {
             var elems = [];
 
@@ -27,9 +39,7 @@
             context = context || document;
 
             if (typeof selector === 'string') {
-                if (selector[0] === '<'
-                        && selector[selector.length - 1] === '>'
-                        && selector.length >= 3) {
+                if (selector[0] === '<') {
                     tempBlock.innerHTML = selector;
                     elems = arr.splice.call(tempBlock.children, 0);
                     elems.forEach(tempBlock.removeChild, tempBlock);
@@ -47,6 +57,38 @@
             return this;
         },
         data: function(key, value) {
+            if (!this.length) {
+                return undefined;
+            }
+
+            var elem = this[0];
+            var data = dataMap.get(elem);
+            var dataset = elem.dataset;
+
+            if (!data) {
+                data = map(clone(dataset), function(key) {
+                    var value = dataset[key];
+
+                    try {
+                        return JSON.parse(value);
+                    } catch (err) {
+                        if (err instanceof SyntaxError) {
+                            return value;
+                        }
+                        throw err;
+                    }
+                });
+                dataMap.set(elem, data);
+            }
+
+            if (!key) {
+                return data;
+            }
+            if (value !== undefined) {
+                data[key] = value;
+                return this;
+            }
+            return data[key];
         },
         each: function(callback) {
             arr.every.call(this, function(item, i) {
@@ -55,34 +97,32 @@
 
             return this;
         },
+        is: function(selector) {
+            var test;
+
+            if (typeof selector === 'string') {
+                test = function(item) {
+                    var parent = item.parentNode;
+                    if (!parent) {
+                        parent = document.createDocumentFragment();
+                        parent.appendChild(item);
+                    }
+                    return !!~arr.indexOf.call(parent.querySelectorAll(selector), item);
+                };
+            }
+
+
+            return arr.some.call(this, test);
+        },
         splice: arr.splice
     };
 
-    var $ = function(selector, context) {
+    ecmaQuery = function(selector, context) {
         return Object.create(proto).init(selector, context);
     };
 
-    proto.is = function(selector) {
-        var test;
+    ecmaQuery.fn = proto;
 
-        if (typeof selector === 'string') {
-            test = function(item) {
-                var parent = item.parentNode;
-                if (!parent) {
-                    parent = document.createDocumentFragment();
-                    parent.appendChild(item);
-                }
-                return !!~arr.indexOf.call(parent.querySelectorAll(selector), item);
-            };
-        }
-
-
-        return arr.any.call(this, test);
-    };
-
-
-    $.fn = proto;
-
-    window.$ = $;
+    window.$ = ecmaQuery;
 
 })(window, document);

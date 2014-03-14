@@ -32,27 +32,26 @@
         init: function(selector, context) {
             var elems = [];
 
-            if (!selector) {
-                return this;
-            }
+            if (selector) {
 
-            context = context || document;
+                context = context || document;
 
-            if (typeof selector === 'string') {
-                if (selector[0] === '<') {
-                    tempBlock.innerHTML = selector;
-                    elems = arr.splice.call(tempBlock.children, 0);
-                    elems.forEach(tempBlock.removeChild, tempBlock);
-                } else {
-                    elems = context.querySelectorAll(selector);
+                if (typeof selector === 'string') {
+                    if (selector[0] === '<') {
+                        tempBlock.innerHTML = selector;
+                        elems = arr.splice.call(tempBlock.children, 0);
+                        elems.forEach(tempBlock.removeChild, tempBlock);
+                    } else {
+                        elems = context.querySelectorAll(selector);
+                    }
+                } else if (Object.getPrototypeOf(selector) === proto) {
+                    return selector;
+                } else if (!selector.length) {
+                    elems = [selector];
                 }
-            } else if (Object.getPrototypeOf(selector) === proto) {
-                return selector;
-            } else if (!selector.length) {
-                elems = [selector];
+                Object.assign(this, elems);
             }
             this.length = elems.length;
-            Object.assign(this, elems);
 
             return this;
         },

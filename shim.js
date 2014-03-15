@@ -9,11 +9,7 @@ if (!Object.assign) {
     };
 }
 
-(function() {
-    if (window.Map) {
-        return;
-    }
-
+window.Map = window.Map || (function() {
     var keyCache = [];
 
     function makeUniqueKey() {
@@ -62,16 +58,15 @@ if (!Object.assign) {
     }
 
     function Map() {
-        if (!(this instanceof Map)) {
-            throw new TypeError("Constructor Map requires 'new'");
-        }
-
         var mapKey = makeUniqueKey();
+        var self = Object.create(Map.prototype);
         var data = {};
 
-        this.set = set.bind(this, data, mapKey);
-        this.get = get.bind(this, data, mapKey);
+        self.set = set.bind(self, data, mapKey);
+        self.get = get.bind(self, data, mapKey);
+
+        return self;
     }
 
-    window.Map = Map;
+    return Map;
 })();

@@ -29,30 +29,31 @@ if (!Object.assign) {
     }
 
     function get(data, mapKey, obj) {
-        var type = typeof obj;
-        var typeData = data[type];
-
-        if (type === 'object' || type === 'function') {
+        if (obj instanceof Object) {
             return obj[mapKey];
         }
-        return typeData ? typeData[obj[mapKey]] : undefined;
+
+        var type = typeof obj;
+
+        return data[type] ? data[type][obj[mapKey]] : undefined;
     }
 
     function set(data, mapKey, obj, value) {
-        var type = typeof obj;
+        var type;
 
-        if (type === 'object' || type === 'function') {
+        if (obj instanceof Object) {
             if (!obj.hasOwnProperty(mapKey)) {
                 Object.defineProperty(obj, mapKey, {
                     enumerable: false,
                     writable: true,
-                    configurable: true,
+                    configurable: false,
                     value: value
                 });
             } else {
                 obj[mapKey] = value;
             }
         } else {
+            type = typeof obj;
             if (!data[type]) {
                 data[type] = {};
             }

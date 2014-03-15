@@ -10,7 +10,7 @@ if (!Object.assign) {
 }
 
 (function() {
-    if (Map) {
+    if (window.Map) {
         return;
     }
 
@@ -29,46 +29,40 @@ if (!Object.assign) {
     }
 
     function get(data, mapKey, obj) {
-        var typeData = data[typeof obj];
+        var type = typeof obj;
+        var typeData = data[type];
 
-        if (!typeData) {
-            return;
+        if (type === 'object' || type === 'function') {
+            return obj[mapKey];
         }
-
-        return typeData[obj[mapKey]];
+        return typeData ? typeData[obj[mapKey]] : undefined;
     }
 
     function set(data, mapKey, obj, value) {
         var type = typeof obj;
-        var objKey;
-        var store;
-
-        if (!data[type]) {
-            data[type] = {};
-        }
-        store = data[type];
 
         if (type === 'object' || type === 'function') {
             if (!obj.hasOwnProperty(mapKey)) {
-                objKey = makeUniqueKey();
                 Object.defineProperty(obj, mapKey, {
                     enumerable: false,
-                    writable: false,
-                    configurable: false,
-                    value: objKey
+                    writable: true,
+                    configurable: true,
+                    value: value
                 });
             } else {
-                objKey = obj[mapKey];
+                obj[mapKey] = value;
             }
-            store[objKey] = value;
         } else {
-            store[obj] = value;
+            if (!data[type]) {
+                data[type] = {};
+            }
+            data[type][obj] = value;
         }
     }
 
     function Map() {
         if (!(this instanceof Map)) {
-            throw new TypeError('Constructor Map requires \'new\'');
+            throw new TypeError("Constructor Map requires 'new'");
         }
 
         var mapKey = makeUniqueKey();

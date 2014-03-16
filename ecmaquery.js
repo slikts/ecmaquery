@@ -40,7 +40,11 @@
       return this;
     },
     pushStack: function(elems, context) {
-      elems = elems || [];
+      if (elems && elems.length) {
+        elems = $.unique(elems);
+      } else {
+        elems = [];
+      }
       context = context || this.context || document;
 
       if (!this.context) {
@@ -63,6 +67,7 @@
       return this.prevObject || $();
     },
     find: function(selector) {
+      // XXX handle collections, elements
       return this.pushStack($.find(selector, this), this.context);
     },
     first: function() {
@@ -74,12 +79,6 @@
     eq: function(i) {
       return this.pushStack([this.get(i)]);
     },
-    html: function(html) {
-      if (html === undefined) {
-        return this.length === 1 ? this.first().innerHTML : undefined;
-      }
-
-    },
     data: function(key, value) {
       if (!this.length) {
         return undefined;
@@ -90,7 +89,7 @@
       var dataset = elem.dataset;
 
       if (!data) {
-        data = $.map(clone(dataset), function(key) {
+        data = $.map($.clone(dataset), function(key) {
           var value = dataset[key];
 
           try {
@@ -112,24 +111,25 @@
         data[key] = value;
         return this;
       }
+
       return data[key];
     },
     each: function(callback) {
-      arrProto.every.call(this, function(item, i) {
+      $.every(this, function(item, i) {
         return callback.call(item, i, item) !== false;
       });
 
       return this;
     },
+    not: function(selector) {
+      return this.pushStack($.filterMatches(this, selector, true));
+    },
     is: function(selector) {
-      var test;
-
-      if (typeof selector === 'string') {
-        return arrProto.some.call(this, testSelector.bind(this, selector));
-      }
+      // XXX handle functions, collections and elements
+      return !!$.filterMatches(this, selector).length;
     },
     add: function(selector, context) {
-
+      return this.pushStack($.merge(this, $.find(selector, context)));
     },
     index: function(elem) {
 
@@ -147,7 +147,8 @@
 
     },
     toArray: function() {
-      return slice.call(this);
+      // XXX
+      return [].slice.call(this);
     },
     splice: Array.prototype.splice
         //parent
@@ -174,9 +175,34 @@
         //css
   };
 
+
+  // dom methods
+  Object.assign(proto, (function() {
+    function _prop(name, content) {
+      if (content === undefined) {
+        return this.length ? this[0][name] : undefined;
+      }
+
+      $.each(this, function(el) {
+        el[name] = content;
+      });
+      return undefined;
+    }
+
+    return {
+      html: function html(data) {
+        return _prop.call(this, 'innerHTML', data) || this;
+        return this;
+      },
+      text: function text(data) {
+        return _prop.call(this, 'innerText', data) || this;
+        return this;
+      }
+    };
+  })());
+
   // dom utils
   Object.assign($, (function() {
-
     return {
       find: function find(selector, context) {
         if (!context) {
@@ -189,6 +215,21 @@
         return $.flatten($.map(context, function(item) {
           return item.querySelectorAll(selector);
         }));
+      },
+      filterElems: function(elems, selector, not) {
+        if (selector === 'string') {
+          return $.filterMatches(elems, selector, not);
+        }
+
+        var callback;
+
+        if (typeof selector === 'function') {
+          return $.filter(elems, function(el, i) {
+            return selector.call(el, i);
+          });
+        }
+        return $.indexOf()
+
       },
       filterMatches: function filterMatches(elems, selector, not) {
         if (not) {
@@ -220,12 +261,20 @@
     var objGetOwnPropertyNames = Object.getOwnPropertyNames;
 
     var arrProto = Array.prototype;
+    var arrIsArray = Array.isArray;
     var arrForEach = arrProto.forEach;
     var arrMap = arrProto.map;
     var arrReduce = arrProto.reduce;
     var arrFilter = arrProto.filter;
     var arrEvery = arrProto.every;
     var arrSome = arrProto.some;
+    var arrIndexOf = arrProto.indexOf;
+    var arrSlice = arrProto.slice;
+    var arrConcat = arrProto.concat;
+
+    function indexOf(obj, x) {
+      return arrIndexOf.call(obj, x);
+    }
 
     function every(obj, callback, thisArg) {
       if (isArrayLike(obj)) {
@@ -272,8 +321,8 @@
     }
 
     function extend() {
-      return arrReduce.call(arguments, function(a, b) {
-        return objAssign(a, b);
+      return arrReduce.call(arguments, function(target, source) {
+        return objAssign(target, source);
       });
     }
 
@@ -315,7 +364,7 @@
         var prop = objGetOwnPropertyDescriptor(obj, name);
 
         if (deep) {
-          prop.value = clone(prop.value);
+          prop.value = $.clone(prop.value);
         }
 
         descriptors[name] = prop;
@@ -370,6 +419,7 @@
       });
     }
 
+    // XXX
     function toArrayLike(obj) {
       if (isArrayLike(obj)) {
         return obj;
@@ -383,6 +433,10 @@
       return ret;
     }
 
+    function toArray(obj) {
+      return arrSlice.call(obj, 0);
+    }
+
     // XXX
     function bindRight() {
       var self = this;
@@ -390,6 +444,30 @@
       return function() {
         return self.apply(this, arrProto.slice.call(arguments).concat(args));
       };
+    }
+
+    // array-like only
+    function difference(arr) {
+      var rest = flatten(arrSlice.call(arguments, 1));
+
+      return $.filter(arr, function(value) {
+        return !contains(rest, value);
+      });
+    }
+
+    // array-like only
+    function contains(arr, item) {
+      return ~arrIndexOf.call(arr, item);
+    }
+
+    // array-like only
+    function merge() {
+      return arrConcat.apply([], map(toArrayLike(arguments), function(value) {
+        if (!arrIsArray(value) && isArrayLike(value)) {
+          value = toArray(value);
+        }
+        return value;
+      }));
     }
 
     return {
@@ -407,7 +485,11 @@
       flatten: flatten,
       toArrayLike: toArrayLike,
       values: values,
-      bindRight: bindRight
+      bindRight: bindRight,
+      indexOf: indexOf,
+      difference: difference,
+      contains: contains,
+      merge: merge
     };
   })());
 

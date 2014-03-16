@@ -17,8 +17,6 @@
     init: function(selector, context) {
       var elems;
 
-      context = context || document;
-
       if (typeof selector === 'function') {
         return this.ready(selector);
       }
@@ -43,6 +41,7 @@
     },
     pushStack: function(elems, context) {
       elems = elems || [];
+      context = context || this.context || document;
 
       if (!this.context) {
         $.extend(this, elems);
@@ -73,9 +72,7 @@
       return this.eq(-1);
     },
     eq: function(i) {
-      var len = this.length,
-          j = +i + (i < 0 ? len : 0);
-      return this.pushStack(j >= 0 && j < len ? [this[j]] : []);
+      return this.pushStack([this.get(i)]);
     },
     html: function(html) {
       if (html === undefined) {
@@ -143,8 +140,8 @@
     has: function(selector, context) {
 
     },
-    filter: function(selector, context) {
-
+    filter: function(selector) {
+      return this.pushStack($.filterMatches(this, selector));
     },
     map: function(callback) {
 
@@ -181,9 +178,10 @@
   Object.assign($, (function() {
 
     return {
-      find: function(selector, context) {
-        context = context || [document];
-        if (!context.length) {
+      find: function find(selector, context) {
+        if (!context) {
+          context = [document];
+        } else if (!context.length) {
           context = [context];
         } else {
           context = $.clone(context);
@@ -192,13 +190,23 @@
           return item.querySelectorAll(selector);
         }));
       },
-      filter: function(selector, elems, not) {
+      filterMatches: function filterMatches(elems, selector, not) {
         if (not) {
           selector = [':not(', selector, ')'].join('');
         }
+        // XXX $.bindRight
+        return $.filter(elems, function(el) {
+          return $.matchesSelector(el, selector);
+        });
+      },
+      matchesSelector: (function() {
+        var elProto = Element.prototype;
+        var fn = elProto.webkitMatchesSelector || elProto.mozMatchesSelector || elProto.oMatchesSelector || elProto.matchesSelector;
 
-
-      }
+        return function matchesSelector(el, selector) {
+          return fn.call(el, selector);
+        };
+      })()
     };
   })());
 
@@ -324,9 +332,11 @@
       return a;
     }
 
-    // array-like only
-    function get(arr, i) {
-      return arr[_posMod(i, arr.length)];
+    function get(obj, i) {
+      if (!isArrayLike(obj)) {
+        obj = objKeys(obj).sort();
+      }
+      return obj[_posMod(i, obj.length)];
     }
 
     function isArrayLike(obj) {
@@ -334,19 +344,11 @@
     }
 
     function last(obj) {
-      if (isArrayLike(obj)) {
-        return get(obj, -1);
-      }
-
-      return obj[last(objKeys(obj).sort())];
+      return get(obj, -1);
     }
 
     function first(obj) {
-      if (isArrayLike(obj)) {
-        return obj[0];
-      }
-
-      return obj[objKeys(obj).sort()[0]];
+      return get(obj, 0);
     }
 
     // array-like only
@@ -358,7 +360,7 @@
           ret.push(subValue);
         });
       });
-      
+
       return ret;
     }
 
@@ -381,6 +383,15 @@
       return ret;
     }
 
+    // XXX
+    function bindRight() {
+      var self = this;
+      var args = arrProto.slice.call(arguments);
+      return function() {
+        return self.apply(this, arrProto.slice.call(arguments).concat(args));
+      };
+    }
+
     return {
       every: every,
       some: some,
@@ -395,21 +406,10 @@
       get: get,
       flatten: flatten,
       toArrayLike: toArrayLike,
-      values: values
+      values: values,
+      bindRight: bindRight
     };
   })());
-
-
-
-  // ??
-  function testSelector(selector, item) {
-    var parent = item.parentNode;
-    if (!parent) {
-      parent = document.createDocumentFragment();
-      parent.appendChild(item);
-    }
-    return !!~arrProto.indexOf.call(parent.querySelectorAll(selector), item);
-  }
 
   window.$ = $;
 

@@ -157,7 +157,9 @@
       return this.pushStack($.filterMatches(this, selector));
     },
     map: function(callback) {
-
+      return this.pushStack($.map(this, function(el, i) {
+        return callback.call(el, i, el);
+      }));
     },
     toArray: function() {
       return $.toArray(this);

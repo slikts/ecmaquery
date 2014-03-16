@@ -131,11 +131,24 @@
     add: function(selector, context) {
       return this.pushStack($.merge(this, $.find(selector, context)));
     },
-    index: function(elem) {
+    index: function(x) {
+      var el;
 
-    },
-    closest: function(selector, context) {
+      if (x === undefined) {
+        el = this[0];
+        if (!el.parentNode) {
+          return -1;
+        }
+        return $.indexOf(el.parentNode.children, el);
+      }
 
+      if (typeof x === 'string') {
+        el = $.filterMatches(this, x)[0];
+      } else if ($.isArrayLike(x) && x.length) {
+        x = x[0];
+      }
+
+      return $.indexOf(this, el);
     },
     has: function(selector, context) {
 
@@ -147,8 +160,7 @@
 
     },
     toArray: function() {
-      // XXX
-      return [].slice.call(this);
+      return $.toArray(this);
     },
     splice: Array.prototype.splice
         //parent
@@ -197,6 +209,9 @@
       text: function text(data) {
         return _prop.call(this, 'innerText', data) || this;
         return this;
+      },
+      closest: function() {
+
       }
     };
   })());
@@ -462,7 +477,7 @@
 
     // array-like only
     function merge() {
-      return arrConcat.apply([], map(toArrayLike(arguments), function(value) {
+      return arrConcat.apply([], map(arguments, function(value) {
         if (!arrIsArray(value) && isArrayLike(value)) {
           value = toArray(value);
         }

@@ -34,6 +34,8 @@
         return selector;
       } else if (selector && !selector.length) {
         elems = [selector];
+      } else {
+        elems = selector;
       }
       this.pushStack(elems, context);
 
@@ -44,6 +46,7 @@
 
       if (!this.context) {
         $.extend(this, elems);
+        this.length = elems.length;
         this.context = context;
 
         return this;
@@ -55,14 +58,13 @@
       return ret;
     },
     get: function(i) {
-      $.get(this, i);
+      return $.get(this, i);
     },
     end: function() {
       return this.prevObject || $();
     },
     find: function(selector) {
-      this.selector = selector;
-
+      return this.pushStack($.find(selector, this), this.context);
     },
     first: function() {
       return this.eq(0);
@@ -72,14 +74,13 @@
     },
     eq: function(i) {
       var len = this.length,
-              j = +i + (i < 0 ? len : 0);
+          j = +i + (i < 0 ? len : 0);
       return this.pushStack(j >= 0 && j < len ? [this[j]] : []);
     },
     html: function(html) {
       if (html === undefined) {
         return this.length === 1 ? this.first().innerHTML : undefined;
       }
-
 
     },
     data: function(key, value) {
@@ -152,46 +153,49 @@
       return slice.call(this);
     },
     splice: Array.prototype.splice
-            //parent
-            //parents
-            //parentsUntil
-            //nextUntil
-            //prevUntil
-            //nextAll
-            //prevAll
-            //children
-            //contents
-            //siblings
+        //parent
+        //parents
+        //parentsUntil
+        //nextUntil
+        //prevUntil
+        //nextAll
+        //prevAll
+        //children
+        //contents
+        //siblings
 
-            //append
-            //prepend
-            //before
-            //after
-            //text
-            //empty
-            //clone
-            //html
-            //replaceWith
+        //append
+        //prepend
+        //before
+        //after
+        //text
+        //empty
+        //clone
+        //html
+        //replaceWith
 
-            //css
+        //css
   };
 
   // dom utils
   Object.assign($, (function() {
 
     return {
-      find: function(selector, elems) {
-        if (!elems.length) {
-          elems = [elems];
+      find: function(selector, context) {
+        context = context || [document];
+        if (!context.length) {
+          context = [context];
         } else {
-          elems = $.clone(elems);
+          context = $.clone(context);
         }
-        console.log(elems)
-        return arrProto.concat($.map(elems, function(item) {
+        return $.flatten($.map(context, function(item) {
           return item.querySelectorAll(selector);
         }));
       },
       filter: function(selector, elems, not) {
+        if (not) {
+          selector = [':not(', selector, ')'].join('');
+        }
 
 
       }
@@ -216,7 +220,7 @@
     var arrSome = arrProto.some;
 
     function every(obj, callback, thisArg) {
-      if (obj.length) {
+      if (isArrayLike(obj)) {
         return arrEvery.call(obj, callback, thisArg);
       }
 
@@ -226,7 +230,7 @@
     }
 
     function some(obj, callback, thisArg) {
-      if (obj.length) {
+      if (isArrayLike(obj)) {
         return arrSome.call(obj, callback, thisArg);
       }
 
@@ -236,7 +240,7 @@
     }
 
     function each(obj, callback, thisArg) {
-      if (obj.length) {
+      if (isArrayLike(obj)) {
         return arrForEach.call(obj, callback, thisArg);
       }
 
@@ -246,15 +250,17 @@
     }
 
     function map(obj, callback, thisArg) {
-      if (obj.length) {
+      if (isArrayLike(obj)) {
         return arrMap.call(obj, callback, thisArg);
       }
 
-      each(objKeys(obj), function(value, key) {
-        obj[key] = callback.apply(thisArg, arguments);
+      var ret = clone(obj);
+
+      each(objKeys(ret), function(value, key) {
+        ret[key] = callback.apply(thisArg, arguments);
       }, thisArg);
 
-      return obj;
+      return ret;
     }
 
     function extend() {
@@ -310,31 +316,69 @@
       return objCreate(objGetPrototypeOf(obj), descriptors);
     }
 
+    function _posMod(a, b) {
+      a = a % b;
+      if (a < 0) {
+        a += b;
+      }
+      return a;
+    }
+
     // array-like only
     function get(arr, i) {
-      var len = arr.length;
+      return arr[_posMod(i, arr.length)];
+    }
 
-      i = i % len;
-      if (i < 0) {
-        i += len;
-      }
-      return arr[i];
+    function isArrayLike(obj) {
+      return obj.length !== undefined;
     }
 
     function last(obj) {
-      if (obj.length) {
-        return get(obj, - 1);
+      if (isArrayLike(obj)) {
+        return get(obj, -1);
       }
 
       return obj[last(objKeys(obj).sort())];
     }
 
     function first(obj) {
-      if (obj.length) {
+      if (isArrayLike(obj)) {
         return obj[0];
       }
 
       return obj[objKeys(obj).sort()[0]];
+    }
+
+    // array-like only
+    function flatten(obj, deep) {
+      var ret = [];
+
+      arrForEach.call(obj, function(value) {
+        arrForEach.call(value, function(subValue) {
+          ret.push(subValue);
+        });
+      });
+      
+      return ret;
+    }
+
+    function values(obj) {
+      return objKeys(obj).map(function(key) {
+        return obj[key];
+      });
+    }
+
+    function toArrayLike(obj) {
+      if (isArrayLike(obj)) {
+        return obj;
+      }
+
+      var ret = objCreate(null);
+
+      ret[0] = obj;
+      ret.length = 1;
+
+      return ret;
     }
 
     return {
@@ -348,7 +392,10 @@
       extend: extend,
       last: last,
       first: first,
-      get: get
+      get: get,
+      flatten: flatten,
+      toArrayLike: toArrayLike,
+      values: values
     };
   })());
 

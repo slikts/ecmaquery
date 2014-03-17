@@ -2,14 +2,13 @@
 
 (function() {
   var $ = ecmaQuery;
-  var dataMap = new Map();
   var proto;
 
   function ecmaQuery(selector, context) {
     return Object.create(proto).init(selector, context);
   }
 
-// core
+  // core
   proto = $.fn = $.prototype = {
     constructor: $,
     length: 0,
@@ -32,9 +31,8 @@
       } else {
         elems = x;
       }
-      this.pushStack(elems, context);
 
-      return this;
+      return this.pushStack(elems, context);
     },
     pushStack: function(elems, context) {
       if (elems && elems.length) {
@@ -75,41 +73,6 @@
     },
     eq: function(i) {
       return this.pushStack([this.get(i)]);
-    },
-    data: function(key, value) {
-      if (!this.length) {
-        return undefined;
-      }
-
-      var elem = this[0];
-      var data = dataMap.get(elem);
-      var dataset = elem.dataset;
-
-      if (!data) {
-        data = $.map($.clone(dataset), function(key) {
-          var value = dataset[key];
-
-          try {
-            return JSON.parse(value);
-          } catch (err) {
-            if (err instanceof SyntaxError) {
-              return value;
-            }
-            throw err;
-          }
-        });
-        dataMap.set(elem, data);
-      }
-
-      if (!key) {
-        return data;
-      }
-      if (value !== undefined) {
-        data[key] = value;
-        return this;
-      }
-
-      return data[key];
     },
     each: function(callback) {
       $.every(this, function(item, i) {

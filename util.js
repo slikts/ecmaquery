@@ -235,6 +235,11 @@ Object.assign(ecmaQuery, (function($) {
     };
   }
 
+  // string only
+  function capitalize(str) {
+    return str[0].toUpperCase() + str.substr(1);
+  }
+
   return {
     every: every,
     some: some,
@@ -258,6 +263,7 @@ Object.assign(ecmaQuery, (function($) {
     contains: contains,
     merge: merge,
     negate: negate,
-    partial: partial
+    partial: partial,
+    capitalize: capitalize
   };
 })(ecmaQuery));

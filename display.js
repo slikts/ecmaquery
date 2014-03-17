@@ -57,7 +57,7 @@ Object.assign(ecmaQuery, (function($, getComputedStyle) {
 Object.assign(ecmaQuery.fn, (function($) {
   function dimension(name, value) {
     if (value === undefined) {
-      return $['get' + name[0].toUpperCase() + name.substr(1)](this[0]);
+      return $['get' + $.capitalize(name)](this[0]);
     }
 
     this.each(function() {

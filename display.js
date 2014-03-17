@@ -1,12 +1,11 @@
 'use strict';
 
 Object.assign($, (function(getComputedStyle) {
-  function checkPropValue(prop, value) {
-    var dimensionProps = ['width', 'height', 'min-width', 'min-height',
-      'top', 'right', 'bottom', 'left'];
+  var sizeProps = /width|height|top|right|bottom|left|margin.*|padding.*|min-.*/;
 
+  function checkPropValue(prop, value) {
     if ((typeof value === 'number' || /^\d+$/.test(value))
-        && $.contains(dimensionProps, prop)) {
+        && sizeProps.test(prop)) {
       value += 'px';
     }
 
@@ -69,13 +68,24 @@ Object.assign($.fn, (function() {
   }
 
   return {
-    css: function(prop, value) {
-      if (value === undefined) {
-        return $.getStyle(this[0], prop);
+    css: function(x, value) {
+      var props;
+
+      if (typeof x === 'string') {
+        if (value === undefined) {
+          return $.getStyle(this[0], x);
+        }
+
+        props = {};
+        props[x] = value;
+      } else {
+        props = x;
       }
 
-      this.each(function() {
-        $.setStyle(this, prop, value);
+      this.each(function(i, el) {
+        $.each(props, function(value, prop) {
+          $.setStyle(el, prop, value);
+        });
       });
 
       return this;
@@ -93,7 +103,12 @@ Object.assign($.fn, (function() {
       return this.pushStack($.reject(this, $.isVisible));
     },
     offset: function() {
+      var el = this[0];
 
+      return {
+        top: el.offsetTop,
+        left: el.offsetLeft
+      };
     },
     height: $.partial(dimension, 'height'),
     width: $.partial(dimension, 'width')

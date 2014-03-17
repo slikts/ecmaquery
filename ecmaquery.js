@@ -219,11 +219,14 @@ Object.assign(proto, (function() {
 
     },
     parent: function(selector) {
-      if (!selector) {
-        return this.pushStack($.map($.toArray(this), function(el) {
-          return el.parentNode;
-        }));
+      var elems = $.map($.toArray(this), function(el) {
+        return el.parentNode;
+      });
+      if (selector) {
+        elems = $.filterMatches(elems, selector);
       }
+
+      return this.pushStack(elems);
     }
   };
 })());

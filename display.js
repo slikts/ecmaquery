@@ -2,6 +2,8 @@
 
 Object.assign(ecmaQuery, (function($, getComputedStyle) {
   var sizeProps = /width|height|top|right|bottom|left|margin.*|padding.*|min-.+/;
+  var getHeight = $.partial(getDimension, 'Height');
+  var getWidth = $.partial(getDimension, 'Width');
 
   function checkPropValue(prop, value) {
     if ((typeof value === 'number' || /^\d+$/.test(value))
@@ -26,12 +28,8 @@ Object.assign(ecmaQuery, (function($, getComputedStyle) {
     return el.style[prop] || getComputedStyle(el)[prop];
   }
 
-  function getHeight(el, outer) {
-    return el.offsetHeight;
-  }
-
-  function getWidth(el, outer) {
-    return el.offsetWidth;
+  function getDimension(name, el, outer) {
+    return el['offset' + name];
   }
 
   return {

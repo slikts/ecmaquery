@@ -39,5 +39,5 @@ Object.assign($.fn, (function() {
 
       return data[key];
     }
-  }
+  };
 })());

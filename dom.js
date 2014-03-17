@@ -10,6 +10,7 @@ Object.assign($.fn, (function() {
     $.each(this, function(el) {
       el[name] = data;
     });
+    
     return undefined;
   }
 
@@ -39,6 +40,7 @@ Object.assign($.fn, (function() {
 
             return false;
           }
+          
           return true;
         });
       });
@@ -118,9 +120,9 @@ Object.assign($, (function() {
         if (!selector) {
           return undefined;
         }
+        
         return fn.call(el, selector);
       }
-      ;
 
       return matchesSelector;
     })()

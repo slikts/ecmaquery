@@ -95,6 +95,17 @@ Object.assign($, (function() {
     return ret;
   }
 
+  function reject(obj, callback, thisArg) {
+    return filter(obj, negate(callback), thisArg);
+  }
+
+  // function only
+  function negate(func) {
+    return function() {
+      return !func.apply(this, arguments);
+    };
+  }
+
   // array-like only
   function unique(obj) {
     return arrFilter.call(obj, function(val, i, arr) {
@@ -201,7 +212,7 @@ Object.assign($, (function() {
 
   // array-like only
   function contains(arr, item) {
-    return ~arrIndexOf.call(arr, item);
+    return !!~arrIndexOf.call(arr, item);
   }
 
   // array-like only
@@ -215,6 +226,15 @@ Object.assign($, (function() {
     }));
   }
 
+  // function only
+  function partial(func) {
+    var boundArgs = arrSlice.call(arguments, 1);
+
+    return function() {
+      return func.apply(this, merge(boundArgs.slice(), arguments));
+    };
+  }
+
   return {
     every: every,
     some: some,
@@ -223,6 +243,7 @@ Object.assign($, (function() {
     clone: clone,
     unique: unique,
     filter: filter,
+    reject: reject,
     extend: extend,
     last: last,
     first: first,
@@ -235,6 +256,8 @@ Object.assign($, (function() {
     indexOf: indexOf,
     difference: difference,
     contains: contains,
-    merge: merge
+    merge: merge,
+    negate: negate,
+    partial: partial
   };
 })());

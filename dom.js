@@ -2,7 +2,7 @@
 
 // dom methods
 Object.assign($.fn, (function() {
-  function _setProp(name, data) {
+  function prop(name, data) {
     if (data === undefined) {
       return this.length ? this[0][name] : undefined;
     }
@@ -10,8 +10,8 @@ Object.assign($.fn, (function() {
     $.each(this, function(el) {
       el[name] = data;
     });
-    
-    return undefined;
+
+    return this;
   }
 
   function walk(el, prop, callback) {
@@ -22,12 +22,8 @@ Object.assign($.fn, (function() {
   }
 
   return {
-    html: function html(data) {
-      return _setProp.call(this, 'innerHTML', data) || this;
-    },
-    text: function text(data) {
-      return _setProp.call(this, 'innerText', data) || this;
-    },
+    html: $.partial(prop, 'innerHTML'),
+    text: $.partial(prop, 'innerText'),
     closest: function(selector, context) {
       var matches = [];
       $.each(this, function(el) {
@@ -40,7 +36,7 @@ Object.assign($.fn, (function() {
 
             return false;
           }
-          
+
           return true;
         });
       });
@@ -49,6 +45,27 @@ Object.assign($.fn, (function() {
     },
     append: function() {
       var elems = $.flatten(arguments);
+
+      return this.each(function(i) {
+        var target = this;
+        $.each(elems, function(node) {
+          $.appendNode(i ? node.cloneNode(true) : node, target);
+        });
+      });
+    },
+    remove: function(selector) {
+      var elems = selector ? $.filterMatches(selector) : this;
+
+      $.each(elems, function(el) {
+        $.removeNode(el);
+      });
+
+      return this;
+    },
+    empty: function() {
+      return this.each(function() {
+        $.each($.toArray(this.childNodes), $.removeNode);
+      });
     },
     parent: function(selector) {
       var elems = $.map($.toArray(this), function(el) {
@@ -59,6 +76,26 @@ Object.assign($.fn, (function() {
       }
 
       return this.pushStack(elems);
+    },
+    index: function(x) {
+      var el;
+
+      if (x === undefined) {
+        //
+        el = this[0];
+        if (!el.parentNode) {
+          return -1;
+        }
+        return $.indexOf(el.parentNode.children, el);
+      }
+
+      if (typeof x === 'string') {
+        el = $.filterMatches(this, x)[0];
+      } else if ($.isArrayLike(x) && x.length) {
+        x = x[0];
+      }
+
+      return $.indexOf(this, el);
     }
   };
 })());
@@ -66,65 +103,34 @@ Object.assign($.fn, (function() {
 // dom utils
 Object.assign($, (function() {
   var tempBlock = document.createElement('div');
+  var tagRegex = /^<(\w+)>$/;
 
   return {
+    appendNode: function(node, target) {
+      target.appendChild(node);
+    },
+    removeNode: function(node) {
+      var parent = node.parentNode;
+
+      if (!parent) {
+        return;
+      }
+
+      parent.removeChild(node);
+    },
     parseHTML: function(html) {
       var elems;
+      var match = tagRegex.exec(html);
 
-      tempBlock.innerHTML = html;
-      elems = $.toArray(tempBlock.children);
-      elems.forEach(tempBlock.removeChild, tempBlock);
+      if (match) {
+        elems = [document.createElement(match[1])];
+      } else {
+        tempBlock.innerHTML = html;
+        elems = $.toArray(tempBlock.children);
+        elems.forEach(tempBlock.removeChild, tempBlock);
+      }
 
       return elems;
-    },
-    find: function(selector, context) {
-      if (!context) {
-        context = [document];
-      } else if (!context.length) {
-        context = [context];
-      } else {
-        context = $.clone(context);
-      }
-      return $.flatten($.map(context, function(item) {
-        return item.querySelectorAll(selector);
-      }));
-    },
-    filterElems: function(elems, x, not) {
-      if (x === 'string') {
-        return $.filterMatches(elems, x, not);
-      }
-
-      if (typeof x === 'function') {
-        return $.filter(elems, function(el, i) {
-          return x.call(el, i);
-        });
-      }
-      // XXX
-      //return $.indexOf()
-
-    },
-    filterMatches: function(elems, selector, not) {
-      if (not) {
-        selector = [':not(', selector, ')'].join('');
-      }
-      // XXX $.bindRight
-      return $.filter(elems, function(el) {
-        return $.matchesSelector(el, selector);
-      });
-    },
-    matchesSelector: (function() {
-      var elProto = Element.prototype;
-      var fn = elProto.webkitMatchesSelector || elProto.mozMatchesSelector || elProto.oMatchesSelector || elProto.matchesSelector;
-
-      function matchesSelector(el, selector) {
-        if (!selector) {
-          return undefined;
-        }
-        
-        return fn.call(el, selector);
-      }
-
-      return matchesSelector;
-    })()
+    }
   };
 })());

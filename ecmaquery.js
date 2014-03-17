@@ -16,19 +16,25 @@
       var elems;
 
       if (typeof x === 'function') {
+        // x is a ready handler
         return this.ready(x);
       }
       if (typeof x === 'string') {
         if (x[0] === '<') {
+          // x is HTML
           elems = $.parseHTML(x);
         } else {
+          // x is a CSS selector
           elems = $.find(x, context);
         }
       } else if (x instanceof $) {
+        // x is $()
         return x;
       } else if (x && !$.isArrayLike(x)) {
+        // x is a single element
         elems = [x];
       } else {
+        // x is a collection of elements
         elems = x;
       }
 
@@ -43,6 +49,7 @@
       context = context || this.context || document;
 
       if (!this.context) {
+        // this is a new $()
         $.extend(this, elems);
         this.length = elems.length;
         this.context = context;
@@ -55,15 +62,11 @@
 
       return ret;
     },
-    get: function(i) {
-      return $.get(this, i);
-    },
     end: function() {
       return this.prevObject || $();
     },
-    find: function(selector) {
-      // XXX handle collections, elements
-      return this.pushStack($.find(selector, this), this.context);
+    get: function(i) {
+      return $.get(this, i);
     },
     first: function() {
       return this.eq(0);
@@ -81,7 +84,15 @@
 
       return this;
     },
+
+
+    // selectors
+    find: function(x) {
+      // XXX handle collections, elements
+      return this.pushStack($.find(x, this), this.context);
+    },
     not: function(selector) {
+      // XXX
       return this.pushStack($.filterMatches(this, selector, true));
     },
     is: function(x) {

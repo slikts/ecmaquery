@@ -30,7 +30,7 @@ proto = $.prototype = {
       }
     } else if (x instanceof $) {
       return x;
-    } else if (x && !x.length) {
+    } else if (x && !$.isArrayLike(x)) {
       elems = [x];
     } else {
       elems = x;
@@ -195,28 +195,47 @@ proto = $.prototype = {
 
 // dom methods
 Object.assign(proto, (function() {
-  function _prop(name, content) {
-    if (content === undefined) {
+  function _eachProp(name, data) {
+    if (data === undefined) {
       return this.length ? this[0][name] : undefined;
     }
 
     $.each(this, function(el) {
-      el[name] = content;
+      el[name] = data;
     });
     return undefined;
   }
 
+  function walkUp(el, callback) {
+    var node = el.parentNode;
+    if (callback(node)) {
+      walkUp(node, callback);
+    }
+  }
+
   return {
     html: function html(data) {
-      return _prop.call(this, 'innerHTML', data) || this;
-      return this;
+      return _eachProp.call(this, 'innerHTML', data) || this;
     },
     text: function text(data) {
-      return _prop.call(this, 'innerText', data) || this;
-      return this;
+      return _eachProp.call(this, 'innerText', data) || this;
     },
-    closest: function() {
+    closest: function(selector, context) {
+      var matches = [];
+      $.each(this, function(el) {
+        walkUp(el, function(node) {
+          if (node === context || node === document) {
+            return false;
+          }
+          if ($.matchesSelector(node, selector)) {
+            matches.push(node);
 
+            return false;
+          }
+          return true;
+        });
+      });
+      return this.pushStack(matches, context);
     },
     parent: function(selector) {
       var elems = $.map($.toArray(this), function(el) {
@@ -234,7 +253,7 @@ Object.assign(proto, (function() {
 // dom utils
 Object.assign($, (function() {
   return {
-    find: function find(selector, context) {
+    find: function(selector, context) {
       if (!context) {
         context = [document];
       } else if (!context.length) {
@@ -246,23 +265,21 @@ Object.assign($, (function() {
         return item.querySelectorAll(selector);
       }));
     },
-    filterElems: function(elems, selector, not) {
-      if (selector === 'string') {
-        return $.filterMatches(elems, selector, not);
+    filterElems: function(elems, x, not) {
+      if (x === 'string') {
+        return $.filterMatches(elems, x, not);
       }
 
-      var callback;
-
-      if (typeof selector === 'function') {
+      if (typeof x === 'function') {
         return $.filter(elems, function(el, i) {
-          return selector.call(el, i);
+          return x.call(el, i);
         });
       }
       // XXX
       //return $.indexOf()
 
     },
-    filterMatches: function filterMatches(elems, selector, not) {
+    filterMatches: function(elems, selector, not) {
       if (not) {
         selector = [':not(', selector, ')'].join('');
       }
@@ -275,9 +292,14 @@ Object.assign($, (function() {
       var elProto = Element.prototype;
       var fn = elProto.webkitMatchesSelector || elProto.mozMatchesSelector || elProto.oMatchesSelector || elProto.matchesSelector;
 
-      return function matchesSelector(el, selector) {
+      function matchesSelector(el, selector) {
+        if (!selector) {
+          return undefined;
+        }
         return fn.call(el, selector);
       };
+
+      return matchesSelector;
     })()
   };
 })());
@@ -514,6 +536,7 @@ Object.assign($, (function() {
     first: first,
     get: get,
     flatten: flatten,
+    isArrayLike: isArrayLike,
     toArrayLike: toArrayLike,
     toArray: toArray,
     values: values,

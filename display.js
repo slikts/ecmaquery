@@ -1,7 +1,7 @@
 'use strict';
 
-Object.assign($, (function(getComputedStyle) {
-  var sizeProps = /width|height|top|right|bottom|left|margin.*|padding.*|min-.*/;
+Object.assign(ecmaQuery, (function($, getComputedStyle) {
+  var sizeProps = /width|height|top|right|bottom|left|margin.*|padding.*|min-.+/;
 
   function checkPropValue(prop, value) {
     if ((typeof value === 'number' || /^\d+$/.test(value))
@@ -52,9 +52,9 @@ Object.assign($, (function(getComputedStyle) {
     getHeight: getHeight,
     getWidth: getWidth
   };
-})(window.getComputedStyle));
+})(ecmaQuery, window.getComputedStyle));
 
-Object.assign($.fn, (function() {
+Object.assign(ecmaQuery.fn, (function($) {
   function dimension(name, value) {
     if (value === undefined) {
       return $['get' + name[0].toUpperCase() + name.substr(1)](this[0]);
@@ -113,4 +113,4 @@ Object.assign($.fn, (function() {
     height: $.partial(dimension, 'height'),
     width: $.partial(dimension, 'width')
   };
-})());
+})(ecmaQuery));

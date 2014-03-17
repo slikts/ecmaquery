@@ -1,7 +1,7 @@
 'use strict';
 
 // array/object utils
-Object.assign($, (function() {
+Object.assign(ecmaQuery, (function($) {
   var objKeys = Object.keys;
   var objAssign = Object.assign;
   var objCreate = Object.create;
@@ -260,4 +260,4 @@ Object.assign($, (function() {
     negate: negate,
     partial: partial
   };
-})());
+})(ecmaQuery));

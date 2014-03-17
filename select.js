@@ -1,6 +1,6 @@
 'use strict';
 
-Object.assign($, (function() {
+Object.assign(ecmaQuery, (function($) {
   var matchesSelector = (function() {
     var elProto = Element.prototype;
     var fn = elProto.webkitMatchesSelector || elProto.mozMatchesSelector
@@ -55,9 +55,9 @@ Object.assign($, (function() {
     },
     matchesSelector: matchesSelector
   };
-})());
+})(ecmaQuery));
 
-Object.assign($.fn, (function() {
+Object.assign($.fn, (function($) {
   return {
     find: function(x) {
       // XXX handle collections, elements
@@ -78,4 +78,4 @@ Object.assign($.fn, (function() {
       return this.pushStack($.filterMatches(this, selector));
     }
   };
-})());
+})(ecmaQuery));

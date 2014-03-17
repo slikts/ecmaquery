@@ -1,7 +1,7 @@
 'use strict';
 
 // dom methods
-Object.assign($.fn, (function() {
+Object.assign(ecmaQuery.fn, (function($) {
   function prop(name, data) {
     if (data === undefined) {
       return this.length ? this[0][name] : undefined;
@@ -97,10 +97,10 @@ Object.assign($.fn, (function() {
       return $.indexOf(this, el);
     }
   };
-})());
+})(ecmaQuery));
 
 // dom utils
-Object.assign($, (function() {
+Object.assign(ecmaQuery, (function($) {
   var tempBlock = document.createElement('div');
   var tagRegex = /^<(\w+)>$/;
 
@@ -132,4 +132,4 @@ Object.assign($, (function() {
       return elems;
     }
   };
-})());
+})(ecmaQuery));

@@ -1,6 +1,6 @@
 'use strict';
 
-Object.assign($.fn, (function() {
+Object.assign(ecmaQuery.fn, (function($) {
   var dataMap = new Map();
 
   return {
@@ -40,4 +40,4 @@ Object.assign($.fn, (function() {
       return data[key];
     }
   };
-})());
+})(ecmaQuery));

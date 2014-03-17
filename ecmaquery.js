@@ -1,6 +1,6 @@
 'use strict';
 
-(function() {
+(function(window) {
   var $_ = window.$;
   var $ = ecmaQuery;
   var proto;
@@ -100,13 +100,14 @@
     clone: function() {
       return this.pushStack(this);
     },
-    noConflict: function() {
-      window.$ = $_;
-
-      return $;
-    },
     splice: Array.prototype.splice
+  };
+
+  ecmaQuery.noConflict = function() {
+    window.$ = $_;
+
+    return $;
   };
   
   window.$ = window.ecmaQuery = $;
-})();
+})(window);

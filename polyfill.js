@@ -1,72 +1,72 @@
 'use strict';
 
 if (!Object.assign) {
-    Object.assign = function(target, source) {
-        return Object.keys(source).reduce(function(target, key) {
-            target[key] = source[key];
-            return target;
-        }, target);
-    };
+  Object.assign = function(target, source) {
+    return Object.keys(source).reduce(function(target, key) {
+      target[key] = source[key];
+      return target;
+    }, target);
+  };
 }
 
 window.Map = window.Map || (function() {
-    var keyCache = [];
+  var keyCache = [];
 
-    function makeUniqueKey() {
-        var key = ['__map_key', Math.random(), '__'].join('');
+  function makeUniqueKey() {
+    var key = ['__map_key', Math.random(), '__'].join('');
 
-        if (!~keyCache.indexOf(key)) {
-            keyCache.push(key);
+    if (!~keyCache.indexOf(key)) {
+      keyCache.push(key);
 
-            return key;
-        }
-
-        return makeUniqueKey();
+      return key;
     }
 
-    function get(data, mapKey, obj) {
-        if (obj instanceof Object) {
-            return obj[mapKey];
-        }
+    return makeUniqueKey();
+  }
 
-        var type = typeof obj;
-
-        return data[type] ? data[type][obj[mapKey]] : undefined;
+  function get(data, mapKey, obj) {
+    if (obj instanceof Object) {
+      return obj[mapKey];
     }
 
-    function set(data, mapKey, obj, value) {
-        var type;
+    var type = typeof obj;
 
-        if (obj instanceof Object) {
-            if (!obj.hasOwnProperty(mapKey)) {
-                Object.defineProperty(obj, mapKey, {
-                    enumerable: false,
-                    writable: true,
-                    configurable: false,
-                    value: value
-                });
-            } else {
-                obj[mapKey] = value;
-            }
-        } else {
-            type = typeof obj;
-            if (!data[type]) {
-                data[type] = {};
-            }
-            data[type][obj] = value;
-        }
+    return data[type] ? data[type][obj[mapKey]] : undefined;
+  }
+
+  function set(data, mapKey, obj, value) {
+    var type;
+
+    if (obj instanceof Object) {
+      if (!obj.hasOwnProperty(mapKey)) {
+        Object.defineProperty(obj, mapKey, {
+          enumerable: false,
+          writable: true,
+          configurable: false,
+          value: value
+        });
+      } else {
+        obj[mapKey] = value;
+      }
+    } else {
+      type = typeof obj;
+      if (!data[type]) {
+        data[type] = {};
+      }
+      data[type][obj] = value;
     }
+  }
 
-    function Map() {
-        var mapKey = makeUniqueKey();
-        var self = Object.create(Map.prototype);
-        var data = {};
+  function Map() {
+    var mapKey = makeUniqueKey();
+    var self = Object.create(Map.prototype);
+    var data = {};
 
-        self.set = set.bind(self, data, mapKey);
-        self.get = get.bind(self, data, mapKey);
+    self.set = set.bind(self, data, mapKey);
+    self.get = get.bind(self, data, mapKey);
 
-        return self;
-    }
+    return self;
+  }
 
-    return Map;
+  return Map;
 })();

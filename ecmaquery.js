@@ -108,6 +108,6 @@
 
     return $;
   };
-  
+
   window.$ = window.ecmaQuery = $;
 })(window);

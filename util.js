@@ -1,3 +1,5 @@
+'use strict';
+
 // array/object utils
 Object.assign($, (function() {
   var objKeys = Object.keys;

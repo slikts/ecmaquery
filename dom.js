@@ -54,7 +54,7 @@ Object.assign($.fn, (function() {
       });
     },
     remove: function(selector) {
-      var elems = selector ? $.filterMatches(selector) : this;
+      var elems = this.length && selector ? $.filterMatches(this, selector) : this;
 
       $.each(elems, function(el) {
         $.removeNode(el);
@@ -81,7 +81,6 @@ Object.assign($.fn, (function() {
       var el;
 
       if (x === undefined) {
-        //
         el = this[0];
         if (!el.parentNode) {
           return -1;

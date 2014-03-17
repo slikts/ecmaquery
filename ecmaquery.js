@@ -1,6 +1,7 @@
 'use strict';
 
 (function() {
+  var $_ = window.$;
   var $ = ecmaQuery;
   var proto;
 
@@ -65,6 +66,10 @@
     end: function() {
       return this.prevObject || $();
     },
+    add: function(x, context) {
+      // XXX
+      return this.pushStack($.merge(this, $.find(x, context)));
+    },
     get: function(i) {
       return $.get(this, i);
     },
@@ -84,50 +89,6 @@
 
       return this;
     },
-
-
-    // selectors
-    find: function(x) {
-      // XXX handle collections, elements
-      return this.pushStack($.find(x, this), this.context);
-    },
-    not: function(selector) {
-      // XXX
-      return this.pushStack($.filterMatches(this, selector, true));
-    },
-    is: function(x) {
-      // XXX handle functions, collections and elements
-      return !!$.filterMatches(this, x).length;
-    },
-    add: function(x, context) {
-      // XXX
-      return this.pushStack($.merge(this, $.find(x, context)));
-    },
-    index: function(x) {
-      var el;
-
-      if (x === undefined) {
-        el = this[0];
-        if (!el.parentNode) {
-          return -1;
-        }
-        return $.indexOf(el.parentNode.children, el);
-      }
-
-      if (typeof x === 'string') {
-        el = $.filterMatches(this, x)[0];
-      } else if ($.isArrayLike(x) && x.length) {
-        x = x[0];
-      }
-
-      return $.indexOf(this, el);
-    },
-    has: function(selector, context) {
-
-    },
-    filter: function(selector) {
-      return this.pushStack($.filterMatches(this, selector));
-    },
     map: function(callback) {
       return this.pushStack($.map(this.toArray(), function(el, i) {
         return callback.call(el, i, el);
@@ -139,9 +100,13 @@
     clone: function() {
       return this.pushStack(this);
     },
+    noConflict: function() {
+      window.$ = $_;
+
+      return $;
+    },
     splice: Array.prototype.splice
   };
-
-  window.$ = $;
-
+  
+  window.$ = window.ecmaQuery = $;
 })();

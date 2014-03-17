@@ -122,19 +122,17 @@ Object.assign($, (function() {
     return objCreate(objGetPrototypeOf(obj), descriptors);
   }
 
-  function _posMod(a, b) {
-    a = a % b;
-    if (a < 0) {
-      a += b;
-    }
-    return a;
-  }
-
   function get(obj, i) {
     if (!isArrayLike(obj)) {
       obj = objKeys(obj).sort();
     }
-    return obj[_posMod(i, obj.length)];
+
+    var len = obj.length;
+    if (i < 0) {
+      i += len;
+    }
+
+    return obj[i];
   }
 
   function isArrayLike(obj) {
@@ -150,13 +148,22 @@ Object.assign($, (function() {
   }
 
   // array-like only
-  function flatten(obj, deep) {
-    var ret = [];
+  function flatten(obj, deep, level, ret) {
+    if (!deep && every(obj, isArrayLike)) {
+      return merge.apply(this, obj);
+    }
+
+    level = level || 0;
+    ret = ret || [];
 
     arrForEach.call(obj, function(value) {
-      arrForEach.call(value, function(subValue) {
-        ret.push(subValue);
-      });
+      if (!value || !isArrayLike(value) || (!deep && level)) {
+        ret.push(value);
+
+        return;
+      }
+
+      flatten(value, deep, level + 1, ret);
     });
 
     return ret;
@@ -168,30 +175,18 @@ Object.assign($, (function() {
     });
   }
 
-  // XXX
-  function toArrayLike(obj) {
-    if (isArrayLike(obj)) {
-      return obj;
-    }
-
-    var ret = objCreate(null);
-
-    ret[0] = obj;
-    ret.length = 1;
-
-    return ret;
-  }
-
+  // array-like only
   function toArray(obj) {
-    return arrSlice.call(obj, 0);
+    return arrSlice.call(obj);
   }
 
-  // XXX
+  // function only
   function bindRight() {
     var self = this;
-    var args = arrProto.slice.call(arguments);
+    var args = toArray(arguments);
+
     return function() {
-      return self.apply(this, arrProto.slice.call(arguments).concat(args));
+      return self.apply(this, toArray(arguments).concat(args));
     };
   }
 
@@ -215,6 +210,7 @@ Object.assign($, (function() {
       if (!arrIsArray(value) && isArrayLike(value)) {
         value = toArray(value);
       }
+
       return value;
     }));
   }
@@ -233,7 +229,6 @@ Object.assign($, (function() {
     get: get,
     flatten: flatten,
     isArrayLike: isArrayLike,
-    toArrayLike: toArrayLike,
     toArray: toArray,
     values: values,
     bindRight: bindRight,

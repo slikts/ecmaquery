@@ -15,27 +15,42 @@ and improved performance in modern environments.
 
 ### Rationale
 
-The basic purpose of this library is to avoid having to write code like this:
+The basic purpose of ecmaQuery is to avoid having to use code like this:
 
 ```
 [].forEach.call(document.getElementById('foo').getElementsByClassName('bar'), function(el) {
   el.addEventListener('click', function(e) {
-    this.appendChild(document.createElement('baz'));
+    this.querySelector('.baz').appendChild(document.createElement('span'));
     e.preventDefault();
   });
 });
 ```
 
-…and instead write something like this:
+…and to be able to use something like this instead:
 
 ```
 $('#foo .bar').each(function() {
   $(this).click(function() {
-    $(this).append($('<baz>'));
+    $('.baz', this).append($('<span>'));
     return false;
   });
 });
 ```
+
+In other words, it's to make it easier to read and write code dealing with
+things like browser DOM.
+
+#### Why jQuery?
+
+jQuery is veinconsistencies, which makes it less suited for use in certain contexts.
+ry widely used, so many developers can benefit from familiarity
+with its API, but the library itself is largely focused on fixing cross-browser
+inconsistencies, which makes it less suited for use in certain contexts.
+
+ecmaQuery can also provide browser behavior normalization to the extent
+that it can be done with polyfills, but it's also smaller and faster,
+and more appropriate for things like browser add-on development, where a
+certain level of support for modern standards can be relied upon.
 
 ## Standards used
 

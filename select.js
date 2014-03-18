@@ -2,9 +2,7 @@
 
 Object.assign(ecmaQuery, (function($) {
   var matchesSelector = (function() {
-    var elProto = Element.prototype;
-    var fn = elProto.webkitMatchesSelector || elProto.mozMatchesSelector
-        || elProto.oMatchesSelector || elProto.matchesSelector;
+    var fn = Element.prototype.matchesSelector;
 
     function matchesSelector(el, selector) {
       if (!selector) {

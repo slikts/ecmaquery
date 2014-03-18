@@ -70,3 +70,10 @@ window.Map = window.Map || (function() {
 
   return Map;
 })();
+
+(function() {
+  var elProto = Element.prototype;
+  if (!elProto.matchesSelector) {
+    elProto.matchesSelector = elProto.webkitMatchesSelector || elProto.mozMatchesSelector || elProto.oMatchesSelector;
+  }
+})();

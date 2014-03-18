@@ -1,15 +1,17 @@
 # ecmaQuery
 
-ecmaQuery is an attempt at a 'clean' implementation of jQuery's API for
+ecmaQuery is an attempt at a minimalistic implementation of jQuery's API for
 modern environments.
 
 ### Principles
 
-  * Strictly rely on standard APIs
-  * Avoid any code targeting cross-browser quirks
   * Always defer to standard methods
-  * Any legacy support should be provided by polyfills
+  * Avoid any code targeting cross-browser quirks
 
+Missing native support can be addressed with polyfills like
+[es5-shim](https://github.com/es-shims/es5-shim). The benefit of this
+approach is less code and increased readibility of the main library,
+and improved performance in modern environments.
 
 ## Standards used
 
@@ -46,3 +48,8 @@ modern environments.
 ### CSS Object Model
 
   * [Window.getComputedStyle](http://dev.w3.org/csswg/cssom/#dom-window-getcomputedstyle)
+
+## Structure
+
+  * The constructor function is used as a namespace for all methods with a general utility
+  * Prototype methods only host logic related to the objects and defer to utility methods

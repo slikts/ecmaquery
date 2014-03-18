@@ -15,8 +15,6 @@ Object.assign(ecmaQuery, (function($) {
   var objAssign = Object.assign;
   var objCreate = Object.create;
   var objGetPrototypeOf = Object.getPrototypeOf;
-  var objGetOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
-  var objGetOwnPropertyNames = Object.getOwnPropertyNames;
 
   var arrProto = Array.prototype;
   var arrIsArray = Array.isArray;

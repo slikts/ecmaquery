@@ -13,6 +13,7 @@ Object.assign(ecmaQuery.fn, (function($) {
     return this;
   }
 
+  // XXX move to util
   function walk(el, prop, callback) {
     var node = el[prop];
     if (node && callback(node)) {

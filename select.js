@@ -1,19 +1,7 @@
 'use strict';
 
 Object.assign(ecmaQuery, (function($) {
-  var matchesSelector = (function() {
-    var fn = Element.prototype.matchesSelector;
-
-    function matchesSelector(el, selector) {
-      if (!selector) {
-        return undefined;
-      }
-
-      return fn.call(el, selector);
-    }
-
-    return matchesSelector;
-  })();
+  var matchesSelector = Element.prototype.matches;
 
   return {
     find: function(selector, context) {
@@ -51,7 +39,13 @@ Object.assign(ecmaQuery, (function($) {
         return $.matchesSelector(el, selector);
       });
     },
-    matchesSelector: matchesSelector
+    matchesSelector: function(el, selector) {
+      if (!selector) {
+        return undefined;
+      }
+
+      return matchesSelector.call(el, selector);
+    }
   };
 })(ecmaQuery));
 

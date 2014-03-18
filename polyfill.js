@@ -73,7 +73,7 @@ window.Map = window.Map || (function() {
 
 (function() {
   var elProto = Element.prototype;
-  if (!elProto.matchesSelector) {
-    elProto.matchesSelector = elProto.webkitMatchesSelector || elProto.mozMatchesSelector || elProto.oMatchesSelector;
+  if (!elProto.matches) {
+    elProto.matches = elProto.webkitMatchesSelector || elProto.mozMatchesSelector || elProto.oMatchesSelector || elProto.matchesSelector;
   }
 })();

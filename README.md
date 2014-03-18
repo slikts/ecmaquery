@@ -40,17 +40,21 @@ $('#foo .bar').each(function() {
 In other words, it's to make it easier to read and write code dealing with
 things like the browser DOM.
 
-#### Why jQuery?
+#### Differences from jQuery
 
 jQuery is very widely used, so many developers can benefit from familiarity
 with its API, but the library itself is largely focused on fixing cross-browser
 inconsistencies, which makes it less suited for use in certain contexts,
-like developing browser extensions.
+such as developing browser add-ons. ecmaQuery can also provide browser behavior
+normalization to the extent that it can be done with polyfills, but the library
+itself is smaller and faster than jQuery, and more appropriate for contexts
+where a certain level of support for modern standards can be relied upon.
 
-ecmaQuery can also provide browser behavior normalization to the extent
-that it can be done with polyfills, but it's also smaller and faster,
-and more appropriate for contexts where a certain level of support
-for modern standards can be relied upon.
+API changes
+
+#### Differences from other alternatives
+
+…
 
 ## Standards used
 

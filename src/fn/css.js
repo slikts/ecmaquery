@@ -42,6 +42,15 @@ Object.assign(ecmaQuery.fn, (function($) {
     show: function() {
       return this.css('display', null);
     },
+    addClass: function() {
+
+    },
+    removeClass: function() {
+
+    },
+    toggleClass: function() {
+
+    },
     visible: function() {
       return this.pushStack($.filter(this, $.isVisible));
     },

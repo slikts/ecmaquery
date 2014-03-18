@@ -231,7 +231,6 @@ Object.assign(ecmaQuery, (function($) {
     map: map,
     each: each,
     clone: clone,
-    fullClone: fullClone,
     unique: unique,
     filter: filter,
     reject: reject,

@@ -88,10 +88,18 @@ certain level of support for modern standards can be relied upon.
 
   * [Window.getComputedStyle](http://dev.w3.org/csswg/cssom/#dom-window-getcomputedstyle)
 
-## Structure
+## Notes
 
-  * The constructor function is used as a namespace for all methods with a general utility
-  * Prototype methods only host logic related to the objects and defer to utility methods
-
-### Coding conventions
+  * The constructor function (`$` or `ecmaQuery`) is used as a namespace for all 
+    methods with a general utility
+  * Prototype methods only host logic directly related to the constructed objects
+    and defer everything else to the constructor's utility methods
+  * No `for` or `while` loops are used (for readability)
+  * Method argument names consistently reflect the type of input they accept
+    (`x` means variable input, `arr` are array-like objects etc.)
+  * The library includes a small host of utility functions for working with
+    objects and array-like objects, for instance, so that the same `map` method
+    could be used for both types of objects
+    * It should be possible in the future to swap this out with underscore/lodash 
+      (or something else) to avoid duplicating any functionality
 

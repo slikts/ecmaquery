@@ -1,6 +1,5 @@
 'use strict';
 
-// dom methods
 Object.assign(ecmaQuery.fn, (function($) {
   function prop(name, data) {
     if (data === undefined) {

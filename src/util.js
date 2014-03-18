@@ -125,6 +125,7 @@ Object.assign(ecmaQuery, (function($) {
     return isArrayLike(x) ? arrSlice.call(x) : objAssign(objCreate(null), x);
   }
 
+  // XXX needed?
   function fullClone(x, deep) {
     if (!(x instanceof Object)) {
       return x;

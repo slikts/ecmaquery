@@ -1,6 +1,15 @@
 'use strict';
 
-// array/object utils
+/*
+ * argument naming:
+ *
+ * x = accepts both objects and array-like objects
+ * arr = array-like objects only
+ * obj = objects only
+ * func = functions
+ * str = strings
+ */
+
 Object.assign(ecmaQuery, (function($) {
   var objKeys = Object.keys;
   var objAssign = Object.assign;
@@ -21,46 +30,42 @@ Object.assign(ecmaQuery, (function($) {
   var arrSlice = arrProto.slice;
   var arrConcat = arrProto.concat;
 
-  function indexOf(obj, x) {
-    return arrIndexOf.call(obj, x);
-  }
-
-  function every(obj, callback, thisArg) {
-    if (isArrayLike(obj)) {
-      return arrEvery.call(obj, callback, thisArg);
+  function every(x, callback, thisArg) {
+    if (isArrayLike(x)) {
+      return arrEvery.call(x, callback, thisArg);
     }
 
-    return objKeys(obj).every(function(key) {
-      return callback.call(thisArg, obj[key], key, obj);
+    return objKeys(x).every(function(key) {
+      return callback.call(thisArg, x[key], key, x);
     });
   }
 
-  function some(obj, callback, thisArg) {
-    if (isArrayLike(obj)) {
-      return arrSome.call(obj, callback, thisArg);
+  function some(x, callback, thisArg) {
+    if (isArrayLike(x)) {
+      return arrSome.call(x, callback, thisArg);
     }
 
-    return objKeys(obj).some(function(key) {
-      return callback.call(thisArg, obj[key], key, obj);
+    return objKeys(x).some(function(key) {
+      return callback.call(thisArg, x[key], key, x);
     });
   }
 
-  function each(obj, callback, thisArg) {
-    if (isArrayLike(obj)) {
-      return arrForEach.call(obj, callback, thisArg);
+  function each(x, callback, thisArg) {
+    if (isArrayLike(x)) {
+      return arrForEach.call(x, callback, thisArg);
     }
 
-    return arrForEach.call(objKeys(obj), function(key) {
-      callback.call(thisArg, obj[key], key, obj);
+    return arrForEach.call(objKeys(x), function(key) {
+      callback.call(thisArg, x[key], key, x);
     }, thisArg);
   }
 
-  function map(obj, callback, thisArg) {
-    if (isArrayLike(obj)) {
-      return arrMap.call(obj, callback, thisArg);
+  function map(x, callback, thisArg) {
+    if (isArrayLike(x)) {
+      return arrMap.call(x, callback, thisArg);
     }
 
-    var ret = clone(obj);
+    var ret = clone(x);
 
     each(objKeys(ret), function(value, key) {
       ret[key] = callback.apply(thisArg, arguments);
@@ -69,46 +74,45 @@ Object.assign(ecmaQuery, (function($) {
     return ret;
   }
 
+  // XXX arrays?
   function extend() {
     return arrReduce.call(arguments, function(target, source) {
       return objAssign(target, source);
     });
   }
 
-  function filter(obj, callback, thisArg) {
+  function filter(x, callback, thisArg) {
     callback = callback || function(value) {
       return value;
     };
 
-    if (obj.length) {
-      return arrFilter.call(obj, callback, thisArg);
+    if (isArrayLike(x)) {
+      return arrFilter.call(x, callback, thisArg);
     }
 
-    var ret = objCreate(objGetPrototypeOf(obj));
+    var ret = objCreate(objGetPrototypeOf(x));
 
-    each(objKeys(obj).filter(function(key) {
-      return callback.call(thisArg, obj[key], key, obj);
+    each(objKeys(x).filter(function(key) {
+      return callback.call(thisArg, x[key], key, x);
     }), function(key) {
-      ret[key] = obj[key];
+      ret[key] = x[key];
     });
 
     return ret;
   }
 
-  function reject(obj, callback, thisArg) {
-    return filter(obj, negate(callback), thisArg);
+  function reject(x, callback, thisArg) {
+    return filter(x, negate(callback), thisArg);
   }
 
-  // function only
   function negate(func) {
     return function() {
       return !func.apply(this, arguments);
     };
   }
 
-  // array-like only
-  function unique(obj) {
-    return arrFilter.call(obj, function(val, i, arr) {
+  function unique(arr) {
+    return arrFilter.call(arr, function(val, i, arr) {
       return (i <= arrIndexOf.call(arr, val));
     });
   }
@@ -141,41 +145,41 @@ Object.assign(ecmaQuery, (function($) {
     return objCreate(objGetPrototypeOf(x), descriptors);
   }
 
-  function get(obj, i) {
-    if (!isArrayLike(obj)) {
-      obj = objKeys(obj).sort();
+  function get(x, i) {
+    if (!isArrayLike(x)) {
+      x = objKeys(x).sort();
     }
 
-    var len = obj.length;
+    var len = x.length;
     if (i < 0) {
       i += len;
     }
 
-    return obj[i];
+    return x[i];
   }
 
-  function isArrayLike(obj) {
-    return obj.length !== undefined;
+  function isArrayLike(x) {
+    return x.length !== undefined;
   }
 
-  function last(obj) {
-    return get(obj, -1);
+  function last(x) {
+    return get(x, -1);
   }
 
-  function first(obj) {
-    return get(obj, 0);
+  function first(x) {
+    return get(x, 0);
   }
 
   // array-like only
-  function flatten(obj, deep, level, ret) {
-    if (!deep && every(obj, isArrayLike)) {
-      return merge.apply(this, obj);
+  function flatten(arr, deep, level, ret) {
+    if (!deep && every(arr, isArrayLike)) {
+      return merge.apply(this, arr);
     }
 
     level = level || 0;
     ret = ret || [];
 
-    arrForEach.call(obj, function(value) {
+    arrForEach.call(arr, function(value) {
       if (!value || !isArrayLike(value) || (!deep && level)) {
         ret.push(value);
 
@@ -194,22 +198,16 @@ Object.assign(ecmaQuery, (function($) {
     });
   }
 
-  // array-like only
-  function toArray(obj) {
-    return arrSlice.call(obj);
-  }
-
   // function only
   function bindRight() {
     var self = this;
-    var args = toArray(arguments);
+    var args = clone(arguments);
 
     return function() {
-      return self.apply(this, toArray(arguments).concat(args));
+      return self.apply(this, clone(arguments).concat(args));
     };
   }
 
-  // array-like only
   function difference(arr) {
     var rest = flatten(arrSlice.call(arguments, 1));
 
@@ -218,7 +216,6 @@ Object.assign(ecmaQuery, (function($) {
     });
   }
 
-  // array-like only
   function contains(arr, item) {
     return !!~arrIndexOf.call(arr, item);
   }
@@ -227,14 +224,13 @@ Object.assign(ecmaQuery, (function($) {
   function merge() {
     return arrConcat.apply([], map(arguments, function(value) {
       if (!arrIsArray(value) && isArrayLike(value)) {
-        value = toArray(value);
+        value = clone(value);
       }
 
       return value;
     }));
   }
 
-  // function only
   function partial(func) {
     var boundArgs = arrSlice.call(arguments, 1);
 
@@ -243,9 +239,12 @@ Object.assign(ecmaQuery, (function($) {
     };
   }
 
-  // string only
   function capitalize(str) {
     return str[0].toUpperCase() + str.substr(1);
+  }
+
+  function indexOf(value, arr) {
+    return arrIndexOf.call(value, arr);
   }
 
   return {
@@ -264,7 +263,6 @@ Object.assign(ecmaQuery, (function($) {
     get: get,
     flatten: flatten,
     isArrayLike: isArrayLike,
-    toArray: toArray,
     values: values,
     bindRight: bindRight,
     indexOf: indexOf,

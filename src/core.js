@@ -95,7 +95,7 @@
       }));
     },
     toArray: function() {
-      return $.toArray(this);
+      return $.clone(this);
     },
     clone: function() {
       return this.pushStack(this);

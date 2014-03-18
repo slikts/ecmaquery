@@ -1,17 +1,12 @@
 'use strict';
 
-Object.assign(ecmaQuery.fn, (function($) {
+Object.assign(ecmaQuery, (function($) {
   var dataMap = new Map();
 
   return {
-    data: function(key, value) {
-      if (!this.length) {
-        return undefined;
-      }
-
-      var elem = this[0];
-      var data = dataMap.get(elem);
-      var dataset = elem.dataset;
+    data: function(el, key, value) {
+      var data = dataMap.get(el);
+      var dataset = el.dataset;
 
       if (!data) {
         data = $.map($.clone(dataset), function(key) {
@@ -26,7 +21,7 @@ Object.assign(ecmaQuery.fn, (function($) {
             throw err;
           }
         });
-        dataMap.set(elem, data);
+        dataMap.set(el, data);
       }
 
       if (!key) {
@@ -34,7 +29,7 @@ Object.assign(ecmaQuery.fn, (function($) {
       }
       if (value !== undefined) {
         data[key] = value;
-        return this;
+        return undefined;
       }
 
       return data[key];

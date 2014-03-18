@@ -100,6 +100,6 @@ certain level of support for modern standards can be relied upon.
   * The library includes a small host of utility functions for working with
     objects and array-like objects, for instance, so that the same `map` method
     could be used for both types of objects
-    * It should be possible in the future to swap this out with underscore/lodash 
-      (or something else) to avoid duplicating any functionality
+    * It should be possible in the future to swap this out with underscore, lodash
+      or something else to avoid duplicating any functionality
 

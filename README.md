@@ -7,8 +7,9 @@ modern environments.
 
   * Strictly rely on standard APIs
   * Avoid any code targeting cross-browser quirks
+  * Always defer to standard methods
+  * Any legacy support should be provided by polyfills
 
-Cross-browser or legacy support can be provided (to an extent) by polyfills like es5-shim.
 
 ## Standards used
 

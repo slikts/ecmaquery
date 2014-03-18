@@ -113,15 +113,23 @@ Object.assign(ecmaQuery, (function($) {
     });
   }
 
-  function clone(obj, deep, callback) {
-    if (!(obj instanceof Object)) {
-      return obj;
+  function clone(x) {
+    if (!(x instanceof Object)) {
+      return x;
+    }
+
+    return isArrayLike(x) ? arrSlice.call(x) : objAssign(objCreate(null), x);
+  }
+
+  function fullClone(x, deep) {
+    if (!(x instanceof Object)) {
+      return x;
     }
 
     var descriptors = {};
 
-    objGetOwnPropertyNames(obj).forEach(function(name) {
-      var prop = objGetOwnPropertyDescriptor(obj, name);
+    objGetOwnPropertyNames(x).forEach(function(name) {
+      var prop = objGetOwnPropertyDescriptor(x, name);
 
       if (deep) {
         prop.value = $.clone(prop.value);
@@ -130,7 +138,7 @@ Object.assign(ecmaQuery, (function($) {
       descriptors[name] = prop;
     });
 
-    return objCreate(objGetPrototypeOf(obj), descriptors);
+    return objCreate(objGetPrototypeOf(x), descriptors);
   }
 
   function get(obj, i) {
@@ -246,6 +254,7 @@ Object.assign(ecmaQuery, (function($) {
     map: map,
     each: each,
     clone: clone,
+    fullClone: fullClone,
     unique: unique,
     filter: filter,
     reject: reject,

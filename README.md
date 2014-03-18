@@ -3,7 +3,7 @@
 ecmaQuery is an attempt at a 'clean' implementation of jQuery's API for
 modern environments.
 
-### Principles
+**Principles**
 
   * Strictly rely on standard APIs
   * Avoid any code targeting cross-browser quirks

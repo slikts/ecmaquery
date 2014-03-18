@@ -38,18 +38,19 @@ $('#foo .bar').each(function() {
 ```
 
 In other words, it's to make it easier to read and write code dealing with
-things like browser DOM.
+things like the browser DOM.
 
 #### Why jQuery?
 
 jQuery is very widely used, so many developers can benefit from familiarity
 with its API, but the library itself is largely focused on fixing cross-browser
-inconsistencies, which makes it less suited for use in certain contexts.
+inconsistencies, which makes it less suited for use in certain contexts,
+like developing browser extensions.
 
 ecmaQuery can also provide browser behavior normalization to the extent
 that it can be done with polyfills, but it's also smaller and faster,
-and more appropriate for things like browser add-on development, where a
-certain level of support for modern standards can be relied upon.
+and more appropriate for contexts where a certain level of support
+for modern standards can be relied upon.
 
 ## Standards used
 
@@ -70,22 +71,22 @@ certain level of support for modern standards can be relied upon.
 
 ### ES6
 
-  * [Object.assign](http://people.mozilla.org/~jorendorff/es6-draft.html#sec-19.1.2.1)
-  * [Map](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-map-constructor)
+  * [`Object.assign`](http://people.mozilla.org/~jorendorff/es6-draft.html#sec-19.1.2.1)
+  * [`Map`](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-map-constructor)
 
 ### Selectors API
 
-  * [Element.querySelector](https://developer.mozilla.org/en-US/docs/Web/API/Element.querySelector)
-  * [Element.matches](https://developer.mozilla.org/en-US/docs/Web/API/Element.matches)
+  * [`Element.querySelector`](https://developer.mozilla.org/en-US/docs/Web/API/Element.querySelector)
+  * [`Element.matches`](https://developer.mozilla.org/en-US/docs/Web/API/Element.matches)
 
 ### HTML5
 
-  * [HTMLElement.dataset](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.dataset)
-  * [Element.classList](https://developer.mozilla.org/en-US/docs/Web/API/Element.classList)
+  * [`HTMLElement.dataset`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement.dataset)
+  * [`Element.classList`](https://developer.mozilla.org/en-US/docs/Web/API/Element.classList)
 
 ### CSS Object Model
 
-  * [Window.getComputedStyle](http://dev.w3.org/csswg/cssom/#dom-window-getcomputedstyle)
+  * [`Window.getComputedStyle`](http://dev.w3.org/csswg/cssom/#dom-window-getcomputedstyle)
 
 ## Notes
 

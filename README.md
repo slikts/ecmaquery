@@ -42,8 +42,7 @@ things like browser DOM.
 
 #### Why jQuery?
 
-jQuery is veinconsistencies, which makes it less suited for use in certain contexts.
-ry widely used, so many developers can benefit from familiarity
+jQuery is very widely used, so many developers can benefit from familiarity
 with its API, but the library itself is largely focused on fixing cross-browser
 inconsistencies, which makes it less suited for use in certain contexts.
 

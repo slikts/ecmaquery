@@ -17,7 +17,7 @@ Object.assign(ecmaQuery, (function($) {
     },
     parseHTML: function(html) {
       var elems;
-      var match = html.match(tagRegex.exec);
+      var match = html.match(tagRegex);
 
       if (match) {
         elems = [document.createElement(match[1])];

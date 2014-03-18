@@ -125,27 +125,6 @@ Object.assign(ecmaQuery, (function($) {
     return isArrayLike(x) ? arrSlice.call(x) : objAssign(objCreate(null), x);
   }
 
-  // XXX needed?
-  function fullClone(x, deep) {
-    if (!(x instanceof Object)) {
-      return x;
-    }
-
-    var descriptors = {};
-
-    objGetOwnPropertyNames(x).forEach(function(name) {
-      var prop = objGetOwnPropertyDescriptor(x, name);
-
-      if (deep) {
-        prop.value = $.clone(prop.value);
-      }
-
-      descriptors[name] = prop;
-    });
-
-    return objCreate(objGetPrototypeOf(x), descriptors);
-  }
-
   function get(x, i) {
     if (!isArrayLike(x)) {
       x = objKeys(x).sort();

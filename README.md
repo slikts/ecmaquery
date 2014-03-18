@@ -13,22 +13,46 @@ Missing native support can be addressed with polyfills like
 approach is less code and increased readibility of the main library,
 and improved performance in modern environments.
 
+### Rationale
+
+The basic purpose of this library is to avoid having to write code like this:
+
+```
+[].forEach.call(document.getElementById('foo').getElementsByClassName('bar'), function(el) {
+  el.addEventListener('click', function(e) {
+    this.appendChild(document.createElement('baz'));
+    e.preventDefault();
+  });
+});
+```
+
+…and instead write something like this:
+
+```
+$('#foo .bar').each(function() {
+  $(this).click(function() {
+    $(this).append($('<baz>'));
+    return false;
+  });
+});
+```
+
 ## Standards used
 
 ### ES5
 
-  * [Object.create](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create)
-  * Object.getPrototypeOf
-  * JSON.parse
-  * Object.keys
-  * Array.isArray
-  * Array.forEach
-  * Array.map
-  * Array.reduce
-  * Array.filter
-  * Array.every
-  * Array.some
-  * Array.indexOf
+  * [`Object.create`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create)
+  * `Object.getPrototypeOf`
+  * `JSON.parse`
+  * `Object.keys`
+  * `Array.isArray`
+  * `Array.forEach`
+  * `Array.map`
+  * `Array.reduce`
+  * `Array.filter`
+  * `Array.every`
+  * `Array.some`
+  * `Array.indexOf`
 
 ### ES6
 
@@ -53,3 +77,6 @@ and improved performance in modern environments.
 
   * The constructor function is used as a namespace for all methods with a general utility
   * Prototype methods only host logic related to the objects and defer to utility methods
+
+### Coding conventions
+

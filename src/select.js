@@ -12,6 +12,7 @@ Object.assign(ecmaQuery, (function($) {
       } else {
         context = $.clone(context);
       }
+      
       return $.flatten($.map(context, function(item) {
         return item.querySelectorAll(selector);
       }));
